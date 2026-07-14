@@ -1,0 +1,246 @@
+/* ==================================================
+   CAMPAIGNS MASTER DEMO
+   LANDING PAGE
+================================================== */
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Inter,"Segoe UI",Arial,sans-serif;
+}
+
+html,
+body,
+#root{
+    width:100%;
+    min-height:100%;
+}
+
+body{
+    background:
+        radial-gradient(circle at top right,#2563eb22,transparent 35%),
+        radial-gradient(circle at bottom left,#0ea5e922,transparent 35%),
+        linear-gradient(135deg,#06111d,#081b2f,#071321);
+    color:#fff;
+}
+
+/* ================= PAGE ================= */
+
+.app{
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:50px 20px;
+}
+
+.overlay{
+    width:100%;
+    max-width:1400px;
+    text-align:center;
+}
+
+/* ================= TITLE ================= */
+
+.overlay h1{
+
+    font-size:clamp(3rem,6vw,5rem);
+
+    font-weight:900;
+
+    letter-spacing:4px;
+
+    line-height:1.15;
+
+    padding-top:20px;
+
+    margin-bottom:10px;
+
+    text-transform:uppercase;
+
+    background:linear-gradient(90deg,#FFD86B,#FFF3C2,#FFD86B);
+
+    -webkit-background-clip:text;
+
+    -webkit-text-fill-color:transparent;
+
+}
+
+.subtitle{
+
+    font-size:1.25rem;
+
+    color:#d9e7ff;
+
+    margin-bottom:12px;
+
+}
+
+.overlay h2{
+
+    color:#fff;
+
+    font-weight:500;
+
+    margin-bottom:40px;
+
+}
+
+/* ================= GRID ================= */
+
+.officeGrid{
+
+    display:grid;
+
+    grid-template-columns:repeat(3,1fr);
+
+    gap:28px;
+
+}
+
+/* ================= CARD ================= */
+
+.office-card{
+
+    background:rgba(255,255,255,.08);
+
+    backdrop-filter:blur(18px);
+
+    border:1px solid rgba(255,255,255,.10);
+
+    border-radius:24px;
+
+    padding:40px 25px;
+
+    cursor:pointer;
+
+    transition:.35s;
+
+    box-shadow:0 12px 35px rgba(0,0,0,.25);
+
+}
+
+.office-card:hover{
+
+    transform:translateY(-8px);
+
+    border-color:#3b82f6;
+
+    box-shadow:0 18px 40px rgba(37,99,235,.30);
+
+}
+
+.office-card svg{
+
+    font-size:52px;
+
+    color:#FFF3C2;
+
+    margin-bottom:18px;
+
+}
+
+.office-card h3{
+
+    color:#FFD86B;
+
+    font-size:2rem;
+
+    margin-bottom:8px;
+
+}
+
+.office-card p{
+
+    color:#d9e7ff;
+
+    margin-bottom:20px;
+
+}
+
+.office-card span{
+
+    display:inline-block;
+
+    padding:10px 18px;
+
+    border-radius:25px;
+
+    background:#2563eb;
+
+    color:#fff;
+
+    font-size:.8rem;
+
+    font-weight:600;
+
+    text-transform:uppercase;
+
+    letter-spacing:.5px;
+
+}
+
+/* ================= TABLET ================= */
+
+@media(max-width:1024px){
+
+.officeGrid{
+
+grid-template-columns:repeat(2,1fr);
+
+}
+
+}
+
+/* ================= PHONE ================= */
+
+@media(max-width:768px){
+
+.app{
+
+padding:30px 15px;
+
+}
+
+.overlay h1{
+
+font-size:2.3rem;
+
+letter-spacing:2px;
+
+}
+
+.subtitle{
+
+font-size:1rem;
+
+}
+
+.overlay h2{
+
+font-size:1rem;
+
+}
+
+.officeGrid{
+
+grid-template-columns:1fr;
+
+gap:20px;
+
+}
+
+.office-card{
+
+padding:30px 20px;
+
+}
+
+.office-card h3{
+
+font-size:1.6rem;
+
+}
+
+}

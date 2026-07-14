@@ -1,0 +1,314 @@
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Inter,Segoe UI,Arial,sans-serif;
+}
+
+html,body,#root{
+    height:100%;
+}
+
+/* =========================
+   BACKGROUND
+========================= */
+
+body{
+    overflow-x:hidden;
+    background:
+        radial-gradient(circle at top left,#2563eb22,transparent 35%),
+        radial-gradient(circle at bottom right,#0ea5e922,transparent 40%),
+        linear-gradient(135deg,#06111d 0%,#0b1f34 55%,#06111d 100%);
+    color:white;
+}
+
+.app{
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:60px 25px;
+    position:relative;
+}
+
+/* glowing background */
+
+.app::before{
+    content:"";
+    position:absolute;
+    width:700px;
+    height:700px;
+    background:#2563eb20;
+    filter:blur(140px);
+    top:-250px;
+    right:-250px;
+    border-radius:50%;
+}
+
+.app::after{
+    content:"";
+    position:absolute;
+    width:600px;
+    height:600px;
+    background:#0ea5e920;
+    filter:blur(150px);
+    bottom:-250px;
+    left:-250px;
+    border-radius:50%;
+}
+
+/* =========================
+   CONTAINER
+========================= */
+
+.overlay{
+
+    position:relative;
+    z-index:2;
+
+    width:100%;
+    max-width:1300px;
+
+    text-align:center;
+
+}
+
+/* =========================
+   TITLE
+========================= */
+
+h1{
+
+    font-size:68px;
+
+    letter-spacing:3px;
+
+    font-weight:900;
+
+    margin-bottom:10px;
+
+    background:linear-gradient(90deg,#FFD77A,#FFF2C4,#FFD77A);
+
+    -webkit-background-clip:text;
+
+    -webkit-text-fill-color:transparent;
+
+}
+
+.subtitle{
+
+    color:#b8c9de;
+
+    font-size:22px;
+
+    margin-bottom:18px;
+
+}
+
+h2{
+
+    font-size:22px;
+
+    font-weight:500;
+
+    color:#dde7f5;
+
+    margin-bottom:45px;
+
+}
+
+/* =========================
+   GRID
+========================= */
+
+.grid{
+
+    display:grid;
+
+    grid-template-columns:repeat(3,1fr);
+
+    gap:30px;
+
+}
+
+/* =========================
+   CARD
+========================= */
+
+.office-card{
+
+    position:relative;
+
+    overflow:hidden;
+
+    border:none;
+
+    border-radius:28px;
+
+    padding:45px 25px;
+
+    cursor:pointer;
+
+    background:rgba(255,255,255,.08);
+
+    backdrop-filter:blur(26px);
+
+    border:1px solid rgba(255,255,255,.14);
+
+    box-shadow:
+
+    0 15px 45px rgba(0,0,0,.35),
+
+    0 0 30px rgba(37,99,235,.12);
+
+    transition:.35s;
+
+    color:white;
+
+}
+
+.office-card::before{
+
+    content:"";
+
+    position:absolute;
+
+    width:220px;
+
+    height:220px;
+
+    background:rgba(255,255,255,.05);
+
+    border-radius:50%;
+
+    top:-120px;
+
+    right:-120px;
+
+    transition:.4s;
+
+}
+
+.office-card:hover{
+
+    transform:translateY(-12px) scale(1.03);
+
+    border:1px solid #3b82f6;
+
+    box-shadow:
+
+    0 25px 70px rgba(37,99,235,.35);
+
+}
+
+.office-card:hover::before{
+
+    transform:scale(1.3);
+
+}
+
+.office-card svg{
+
+    font-size:56px;
+
+    margin-bottom:22px;
+
+    color:#dbeafe;
+
+}
+
+.office-card h3{
+
+    font-size:32px;
+
+    margin-bottom:12px;
+
+    color:#FFE082;
+
+}
+
+.office-card p{
+
+    color:#d8e4f4;
+
+    font-size:18px;
+
+    line-height:1.5;
+
+}
+
+/* =========================
+   BADGE
+========================= */
+
+.office-card span{
+
+    display:inline-block;
+
+    margin-top:22px;
+
+    padding:8px 18px;
+
+    border-radius:30px;
+
+    background:rgba(37,99,235,.18);
+
+    border:1px solid rgba(59,130,246,.35);
+
+    color:#9ec5ff;
+
+    font-size:13px;
+
+    letter-spacing:1px;
+
+    text-transform:uppercase;
+
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media(max-width:1100px){
+
+    h1{
+
+        font-size:52px;
+
+    }
+
+    .grid{
+
+        grid-template-columns:repeat(2,1fr);
+
+    }
+
+}
+
+@media(max-width:700px){
+
+    h1{
+
+        font-size:38px;
+
+    }
+
+    .subtitle{
+
+        font-size:18px;
+
+    }
+
+    .grid{
+
+        grid-template-columns:1fr;
+
+    }
+
+    .office-card{
+
+        padding:35px 20px;
+
+    }
+
+}

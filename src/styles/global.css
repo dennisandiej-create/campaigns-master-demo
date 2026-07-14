@@ -1,0 +1,163 @@
+/* =====================================================
+   CAMPAIGNS MASTER DEMO
+   GLOBAL STYLES
+===================================================== */
+
+*,
+*::before,
+*::after{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+:root{
+
+    --bg:#071321;
+    --bg2:#0b2138;
+
+    --primary:#2563eb;
+    --primaryHover:#1d4ed8;
+
+    --gold:#FFD86B;
+
+    --white:#ffffff;
+
+    --text:#dbe7ff;
+
+    --border:rgba(255,255,255,.08);
+
+    --glass:rgba(255,255,255,.08);
+
+    --radius:20px;
+
+}
+
+html{
+
+    scroll-behavior:smooth;
+
+}
+
+html,
+body,
+#root{
+
+    width:100%;
+    min-height:100%;
+
+}
+
+body{
+
+    font-family:
+    Inter,
+    "Segoe UI",
+    Arial,
+    sans-serif;
+
+    color:var(--white);
+
+    background:
+
+    radial-gradient(circle at top right,#2563eb22,transparent 30%),
+
+    radial-gradient(circle at bottom left,#0ea5e922,transparent 35%),
+
+    linear-gradient(135deg,var(--bg),var(--bg2),var(--bg));
+
+}
+
+/* LINKS */
+
+a{
+
+    color:inherit;
+
+    text-decoration:none;
+
+}
+
+/* BUTTON */
+
+button{
+
+    font-family:inherit;
+
+    cursor:pointer;
+
+    transition:.25s;
+
+}
+
+/* INPUTS */
+
+input,
+select,
+textarea{
+
+    font-family:inherit;
+
+    outline:none;
+
+}
+
+/* SCROLLBAR */
+
+::-webkit-scrollbar{
+
+    width:10px;
+
+}
+
+::-webkit-scrollbar-track{
+
+    background:#06101d;
+
+}
+
+::-webkit-scrollbar-thumb{
+
+    background:#2563eb;
+
+    border-radius:10px;
+
+}
+
+/* UTILITIES */
+
+.glass{
+
+    background:var(--glass);
+
+    backdrop-filter:blur(18px);
+
+    border:1px solid var(--border);
+
+    border-radius:var(--radius);
+
+}
+
+.shadow{
+
+    box-shadow:
+
+    0 15px 35px rgba(0,0,0,.30);
+
+}
+
+.gold{
+
+    color:var(--gold);
+
+}
+
+.center{
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+}
