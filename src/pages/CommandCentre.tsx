@@ -1,70 +1,138 @@
+import { useEffect, useState } from "react";
 import "../styles/dashboard.css";
+import { getDashboardStats } from "../lib/dashboard";
 
-export default function CommandCentre() {
+type DashboardStats = {
+  contacts: number;
+  supporters: number;
+  volunteers: number;
+  activeVolunteers: number;
+  events: number;
+  activeEvents: number;
+  broadcasts: number;
+};
 
-  return (
+const recentActivities = [
+  "Volunteer database synchronized",
+  "SMS campaign sent successfully",
+  "AI generated campaign speech",
+  "Ward analytics refreshed",
+  "Social media sentiment updated",
+];
 
+const upcomingEvents = [
+  {
+    title: "Youth Rally",
+    date: "15 Jul",
+    location: "Matungulu",
+  },
+  {
+    title: "Volunteer Training",
+    date: "17 Jul",
+    location: "Machakos",
+  },
+  {
+    title: "Town Hall Meeting",
+    date: "19 Jul",
+    location: "Kitui",
+  },
+  {
+    title: "Women Leaders Forum",
+    date: "21 Jul",
+    location: "Makueni",
+  },
+];
+
+export default function CommandCentre() {  
+
+  const [stats, setStats] = useState<DashboardStats>({
+    contacts: 0,
+    supporters: 0,
+    volunteers: 0,
+    activeVolunteers: 0,
+    events: 0,
+    activeEvents: 0,
+    broadcasts: 0,
+  });
+
+  useEffect(() => {
+    loadDashboard();
+  }, []);
+
+  async function loadDashboard() {
+  try {
+    const data = await getDashboardStats();
+    setStats(data);
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+return (
     <div className="page">
 
       <div className="pageHeader">
-
         <div>
-
           <h1>Campaign Command Centre</h1>
-
-          <p>Real-time Executive Overview</p>
-
+          <p>Executive Campaign Operations Dashboard</p>
         </div>
 
         <button className="primaryButton">
-
-          Daily Briefing
-
+          AI Daily Briefing
         </button>
-
       </div>
 
-      {/* Executive KPIs */}
+      {/* KPI CARDS */}
 
       <div className="stats">
 
         <div className="statCard">
-          <h3>421,380</h3>
-          <span>Total Contacts</span>
+          <h3>{stats.contacts}</h3>
+          <span>Registered Voters</span>
         </div>
 
         <div className="statCard">
-          <h3>82,154</h3>
+          <h3>{stats.supporters}</h3>
           <span>Supporters</span>
         </div>
 
         <div className="statCard">
-          <h3>4,286</h3>
+          <h3>{stats.volunteers}</h3>
           <span>Volunteers</span>
         </div>
 
         <div className="statCard">
-          <h3>74%</h3>
-          <span>Win Probability</span>
+          <h3>1,048</h3>
+          <span>Polling Stations</span>
+        </div>
+
+        <div className="statCard">
+          <h3>{stats.events}</h3>
+          <span>Today's Events</span>
+        </div>
+
+        <div className="statCard">
+          <h3>{stats.broadcasts}</h3>
+          <span>Broadcasts</span>
         </div>
 
       </div>
 
-      {/* Row 1 */}
+      {/* FIRST ROW */}
 
       <div className="dashboardGrid">
 
         <div className="panel large">
 
           <div className="panelHeader">
-            <h2>Today's Priorities</h2>
+            <h2>Campaign Performance</h2>
           </div>
 
           <table className="dataTable">
 
             <thead>
               <tr>
-                <th>Priority</th>
+                <th>Campaign Activity</th>
                 <th>Status</th>
               </tr>
             </thead>
@@ -73,27 +141,27 @@ export default function CommandCentre() {
 
               <tr>
                 <td>Volunteer Deployment</td>
-                <td>Active</td>
+                <td>🟢 Active</td>
               </tr>
 
               <tr>
                 <td>Ward Mobilization</td>
-                <td>Scheduled</td>
+                <td>🟢 Running</td>
+              </tr>
+
+              <tr>
+                <td>Door-to-Door Campaign</td>
+                <td>🟡 Scheduled</td>
+              </tr>
+
+              <tr>
+                <td>Digital Campaign</td>
+                <td>🟢 Live</td>
               </tr>
 
               <tr>
                 <td>Media Interviews</td>
-                <td>Pending</td>
-              </tr>
-
-              <tr>
-                <td>Social Listening Review</td>
-                <td>Running</td>
-              </tr>
-
-              <tr>
-                <td>AI Speech Generation</td>
-                <td>Ready</td>
+                <td>🟡 Pending</td>
               </tr>
 
             </tbody>
@@ -105,26 +173,26 @@ export default function CommandCentre() {
         <div className="panel">
 
           <div className="panelHeader">
-            <h2>Quick Actions</h2>
+            <h2>AI Strategy Centre</h2>
           </div>
 
           <div className="aiList">
 
-            <button>New Contact</button>
-
-            <button>Import Excel</button>
-
             <button>Generate Speech</button>
 
-            <button>Open GIS Map</button>
+            <button>Manifesto Builder</button>
 
-            <button>Campaign Calendar</button>
+            <button>SWOT Analysis</button>
 
-            <button>Volunteer Centre</button>
+            <button>Predict Election</button>
 
-            <button>Broadcast SMS</button>
+            <button>Social Listening</button>
 
-            <button>Create Report</button>
+            <button>Campaign Planner</button>
+
+            <button>Media Strategy</button>
+
+            <button>Risk Analysis</button>
 
           </div>
 
@@ -132,32 +200,80 @@ export default function CommandCentre() {
 
       </div>
 
-      {/* Row 2 */}
+      {/* SECOND ROW */}
 
       <div className="dashboardGrid">
 
         <div className="panel">
 
           <div className="panelHeader">
-            <h2>AI Daily Brief</h2>
+            <h2>Upcoming Campaign Events</h2>
           </div>
 
-          <ul className="activity">
+          <table className="dataTable">
 
-            <li>Support increasing in urban wards.</li>
-            <li>Youth engagement remains strong.</li>
-            <li>Healthcare is today's top issue.</li>
-            <li>Deploy more volunteers in swing polling stations.</li>
-            <li>Increase evening social media engagement.</li>
+            <thead>
 
-          </ul>
+              <tr>
+                <th>Date</th>
+                <th>Activity</th>
+                <th>Location</th>
+              </tr>
+
+            </thead>
+
+            <tbody>
+
+              {upcomingEvents.map((event) => (
+
+                <tr key={event.title}>
+
+                  <td>{event.date}</td>
+
+                  <td>{event.title}</td>
+
+                  <td>{event.location}</td>
+
+                </tr>
+
+              ))}
+
+            </tbody>
+
+          </table>
 
         </div>
 
         <div className="panel">
 
           <div className="panelHeader">
-            <h2>County Leaderboard</h2>
+            <h2>Recent Activity</h2>
+          </div>
+
+          <ul className="activity">
+
+            {recentActivities.map((activity) => (
+
+              <li key={activity}>
+                ✔ {activity}
+              </li>
+
+            ))}
+
+          </ul>
+
+        </div>
+
+      </div>
+
+      {/* THIRD ROW */}
+
+      <div className="dashboardGrid">
+
+        <div className="panel">
+
+          <div className="panelHeader">
+            <h2>County Performance</h2>
           </div>
 
           <table className="dataTable">
@@ -188,10 +304,30 @@ export default function CommandCentre() {
 
         </div>
 
+        <div className="panel">
+
+          <div className="panelHeader">
+            <h2>AI Daily Insights</h2>
+          </div>
+
+          <ul className="activity">
+
+            <li>📈 Youth engagement continues to improve.</li>
+
+            <li>📍 Focus additional volunteers in swing wards.</li>
+
+            <li>💬 Healthcare dominates online conversations.</li>
+
+            <li>📲 Evening social media posts receive the highest engagement.</li>
+
+            <li>🗳️ Schedule rallies in high-growth constituencies.</li>
+
+          </ul>
+
+        </div>
+
       </div>
 
     </div>
-
   );
-
 }

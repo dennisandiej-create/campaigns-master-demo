@@ -1,39 +1,116 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
+
+import {
+  getContacts,
+  deleteContact,
+  exportContacts,
+} from "../lib/dashboard";
+
+import ContactForm from "../components/ContactForm";
+import ExcelImporter from "../components/ExcelImporter";
+
 import "../styles/dashboard.css";
 
 type Contact = {
   id: number;
-  name: string;
+  full_name: string;
   phone: string;
+  county: string;
+  constituency: string;
   ward: string;
-  polling: string;
+  polling_station: string;
+  supporter: boolean;
 };
 
-const sampleContacts: Contact[] = [
-  { id: 1, name: "John Mwangi", phone: "0712345678", ward: "Central", polling: "Town Primary" },
-  { id: 2, name: "Mary Wanjiku", phone: "0723456789", ward: "East Ward", polling: "Market Primary" },
-  { id: 3, name: "Peter Otieno", phone: "0734567890", ward: "West Ward", polling: "St Mary's" },
-  { id: 4, name: "Grace Njeri", phone: "0745678901", ward: "North Ward", polling: "Kiamaina" },
-  { id: 5, name: "James Mutua", phone: "0700111222", ward: "South Ward", polling: "ABC Primary" },
-  { id: 6, name: "Faith Achieng", phone: "0700222333", ward: "Central", polling: "Town Primary" },
-  { id: 7, name: "Daniel Kimani", phone: "0700333444", ward: "East Ward", polling: "Market Primary" },
-  { id: 8, name: "Mercy Wairimu", phone: "0700444555", ward: "West Ward", polling: "St Mary's" },
-];
-
 export default function Contacts() {
+  const [contacts, setContacts] = useState<Contact[]>([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [showForm, setShowForm] = useState(false);
+
+  useEffect(() => {
+    loadContacts();
+  }, []);
+
+  async function loadContacts() {
+    try {
+      const data = await getContacts();
+      setContacts(data as Contact[]);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function exportExcel() {
+    try {
+      const data = await exportContacts();
+
+      const worksheet = XLSX.utils.json_to_sheet(
+        data.map((c: any) => ({
+          "Full Name": c.full_name,
+          Phone: c.phone,
+          County: c.county,
+          Constituency: c.constituency,
+          Ward: c.ward,
+          "Polling Station": c.polling_station,
+          Supporter: c.supporter ? "Yes" : "No",
+        }))
+      );
+
+      const workbook = XLSX.utils.book_new();
+
+      XLSX.utils.book_append_sheet(
+        workbook,
+        worksheet,
+        "Contacts"
+      );
+
+      const excelBuffer = XLSX.write(workbook, {
+        bookType: "xlsx",
+        type: "array",
+      });
+
+      const blob = new Blob([excelBuffer], {
+        type: "application/octet-stream",
+      });
+
+      saveAs(blob, "Campaign_Contacts.xlsx");
+
+    } catch (err) {
+      console.error(err);
+      alert("Failed to export contacts.");
+    }
+  }
+
+  async function removeContact(id: number) {
+    if (!confirm("Delete this contact?")) return;
+
+    try {
+      await deleteContact(id);
+      await loadContacts();
+    } catch (err) {
+      console.error(err);
+      alert("Failed to delete contact.");
+    }
+  }
 
   const filtered = useMemo(() => {
     const term = search.toLowerCase();
 
-    return sampleContacts.filter(
+    return contacts.filter(
       (c) =>
-        c.name.toLowerCase().includes(term) ||
+        c.full_name.toLowerCase().includes(term) ||
         c.phone.includes(term) ||
+        c.county.toLowerCase().includes(term) ||
+        c.constituency.toLowerCase().includes(term) ||
         c.ward.toLowerCase().includes(term) ||
-        c.polling.toLowerCase().includes(term)
+        c.polling_station.toLowerCase().includes(term)
     );
-  }, [search]);
+  }, [contacts, search]);
 
   return (
     <div className="page">
@@ -41,17 +118,28 @@ export default function Contacts() {
       <div className="pageHeader">
 
         <div>
-          <h1>Contacts Database</h1>
+          <h1>👥 Contacts Database</h1>
           <p>{filtered.length} Contacts</p>
         </div>
 
-        <div style={{ display: "flex", gap: 10 }}>
+        <div
+          style={{
+            display: "flex",
+            gap: 10,
+          }}
+        >
 
-          <button className="primaryButton">
-            Import Excel
+          <button
+            className="primaryButton"
+            onClick={exportExcel}
+          >
+            Export Excel
           </button>
 
-          <button className="primaryButton">
+          <button
+            className="primaryButton"
+            onClick={() => setShowForm(true)}
+          >
             Add Contact
           </button>
 
@@ -62,11 +150,17 @@ export default function Contacts() {
       <div className="searchBar">
 
         <input
+          placeholder="Search contacts..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search by name, phone, ward or polling station..."
         />
 
+      </div>
+
+      <div style={{ marginBottom: 30 }}>
+        <ExcelImporter
+          onImported={loadContacts}
+        />
       </div>
 
       <table className="dataTable">
@@ -74,44 +168,106 @@ export default function Contacts() {
         <thead>
 
           <tr>
-
-            <th>#</th>
-
             <th>Name</th>
-
             <th>Phone</th>
-
+            <th>County</th>
+            <th>Constituency</th>
             <th>Ward</th>
-
             <th>Polling Station</th>
-
+            <th>Supporter</th>
+            <th>Actions</th>
           </tr>
 
         </thead>
 
         <tbody>
 
-          {filtered.map((contact) => (
+          {loading ? (
 
-            <tr key={contact.id}>
-
-              <td>{contact.id}</td>
-
-              <td>{contact.name}</td>
-
-              <td>{contact.phone}</td>
-
-              <td>{contact.ward}</td>
-
-              <td>{contact.polling}</td>
-
+            <tr>
+              <td colSpan={8}>
+                Loading contacts...
+              </td>
             </tr>
 
-          ))}
+          ) : filtered.length === 0 ? (
+
+            <tr>
+              <td colSpan={8}>
+                No contacts found.
+              </td>
+            </tr>
+
+          ) : (
+
+            filtered.map((contact) => (
+
+              <tr key={contact.id}>
+
+                <td>{contact.full_name}</td>
+                <td>{contact.phone}</td>
+                <td>{contact.county}</td>
+                <td>{contact.constituency}</td>
+                <td>{contact.ward}</td>
+                <td>{contact.polling_station}</td>
+                <td>{contact.supporter ? "✅" : "❌"}</td>
+
+                <td
+                  style={{
+                    display: "flex",
+                    gap: 8,
+                  }}
+                >
+
+                  <button
+                    style={{
+                      background: "#1976d2",
+                      color: "#fff",
+                      border: "none",
+                      borderRadius: 6,
+                      padding: "6px 12px",
+                      cursor: "pointer",
+                    }}
+                  >
+                    Edit
+                  </button>
+
+                  <button
+                    onClick={() =>
+                      removeContact(contact.id)
+                    }
+                    style={{
+                      background: "#d32f2f",
+                      color: "#fff",
+                      border: "none",
+                      borderRadius: 6,
+                      padding: "6px 12px",
+                      cursor: "pointer",
+                    }}
+                  >
+                    Delete
+                  </button>
+
+                </td>
+
+              </tr>
+
+            ))
+
+          )}
 
         </tbody>
 
       </table>
+
+      {showForm && (
+
+        <ContactForm
+          onClose={() => setShowForm(false)}
+          onSaved={loadContacts}
+        />
+
+      )}
 
     </div>
   );

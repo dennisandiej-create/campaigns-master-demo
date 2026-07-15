@@ -1,29 +1,46 @@
-import "../styles/dashboard.css";
+import {
+  ResponsiveContainer,
+  LineChart,
+  Line,
+  CartesianGrid,
+  XAxis,
+  YAxis,
+  Tooltip,
+  BarChart,
+  Bar,
+} from "recharts";
+
+const supporterData = [
+  { month: "Jan", supporters: 12000 },
+  { month: "Feb", supporters: 15800 },
+  { month: "Mar", supporters: 20100 },
+  { month: "Apr", supporters: 26500 },
+  { month: "May", supporters: 34400 },
+  { month: "Jun", supporters: 42100 },
+];
+
+const countyData = [
+  { county: "Machakos", support: 82 },
+  { county: "Kitui", support: 71 },
+  { county: "Makueni", support: 66 },
+  { county: "Nairobi", support: 64 },
+  { county: "Kiambu", support: 61 },
+];
 
 export default function Analytics() {
   return (
     <div className="page">
-
       <div className="pageHeader">
-
         <div>
           <h1>Campaign Analytics</h1>
-          <p>Real-time Campaign Intelligence</p>
+          <p>Real-time campaign performance overview</p>
         </div>
-
-        <button className="primaryButton">
-          Export Report
-        </button>
-
       </div>
 
-      {/* KPI ROW */}
-
       <div className="stats">
-
         <div className="statCard">
           <h3>421,380</h3>
-          <span>Total Voters</span>
+          <span>Total Contacts</span>
         </div>
 
         <div className="statCard">
@@ -32,199 +49,70 @@ export default function Analytics() {
         </div>
 
         <div className="statCard">
-          <h3>67%</h3>
-          <span>Support Score</span>
+          <h3>74%</h3>
+          <span>Win Probability</span>
         </div>
 
         <div className="statCard">
-          <h3>74%</h3>
-          <span>Projected Turnout</span>
+          <h3>94%</h3>
+          <span>Volunteer Coverage</span>
         </div>
-
       </div>
-
-      {/* ROW 1 */}
 
       <div className="dashboardGrid">
 
         <div className="panel large">
-
           <div className="panelHeader">
-            <h2>County Performance</h2>
+            <h2>Supporter Growth</h2>
           </div>
 
-          <div className="placeholder">
-
-            <div>
-
-              Machakos ██████████ 82%
-
-              <br/><br/>
-
-              Kitui ████████ 71%
-
-              <br/><br/>
-
-              Makueni ██████ 65%
-
-              <br/><br/>
-
-              Nairobi ███████ 69%
-
-            </div>
-
-          </div>
-
+          <ResponsiveContainer width="100%" height={320}>
+            <LineChart data={supporterData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="month" />
+              <YAxis />
+              <Tooltip />
+              <Line
+                type="monotone"
+                dataKey="supporters"
+                stroke="#FFD86B"
+                strokeWidth={3}
+              />
+            </LineChart>
+          </ResponsiveContainer>
         </div>
 
         <div className="panel">
-
           <div className="panelHeader">
-            <h2>Support Distribution</h2>
+            <h2>County Support</h2>
           </div>
 
-          <div className="placeholder">
-
-            Strong Support — 48%
-
-            <br/><br/>
-
-            Lean Support — 19%
-
-            <br/><br/>
-
-            Undecided — 22%
-
-            <br/><br/>
-
-            Opposition — 11%
-
-          </div>
-
+          <ResponsiveContainer width="100%" height={320}>
+            <BarChart data={countyData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="county" />
+              <YAxis />
+              <Tooltip />
+              <Bar dataKey="support" fill="#4F7CFF" />
+            </BarChart>
+          </ResponsiveContainer>
         </div>
 
       </div>
 
-      {/* ROW 2 */}
-
-      <div className="dashboardGrid">
-
-        <div className="panel">
-
-          <div className="panelHeader">
-            <h2>Age Distribution</h2>
-          </div>
-
-          <div className="placeholder">
-
-            18–24
-
-            <br/><br/>
-
-            25–35
-
-            <br/><br/>
-
-            36–50
-
-            <br/><br/>
-
-            51+
-
-          </div>
-
+      <div className="panel">
+        <div className="panelHeader">
+          <h2>AI Insights</h2>
         </div>
 
-        <div className="panel">
-
-          <div className="panelHeader">
-            <h2>Gender Distribution</h2>
-          </div>
-
-          <div className="placeholder">
-
-            Male 52%
-
-            <br/><br/>
-
-            Female 47%
-
-            <br/><br/>
-
-            Other 1%
-
-          </div>
-
-        </div>
-
+        <ul className="activity">
+          <li>📈 Support is increasing in Machakos.</li>
+          <li>🗳️ Youth voter engagement has grown by 14%.</li>
+          <li>📱 Evening social media campaigns perform best.</li>
+          <li>🤝 Volunteer recruitment is strongest in Kitui.</li>
+          <li>🎯 Door-to-door campaigns have the highest conversion rate.</li>
+        </ul>
       </div>
-
-      {/* ROW 3 */}
-
-      <div className="dashboardGrid">
-
-        <div className="panel large">
-
-          <div className="panelHeader">
-            <h2>Campaign Progress</h2>
-          </div>
-
-          <table className="dataTable">
-
-            <thead>
-
-              <tr>
-
-                <th>Activity</th>
-
-                <th>Progress</th>
-
-                <th>Status</th>
-
-              </tr>
-
-            </thead>
-
-            <tbody>
-
-              <tr>
-                <td>Contact Collection</td>
-                <td>92%</td>
-                <td>Completed</td>
-              </tr>
-
-              <tr>
-                <td>Volunteer Recruitment</td>
-                <td>81%</td>
-                <td>Active</td>
-              </tr>
-
-              <tr>
-                <td>Polling Station Mapping</td>
-                <td>73%</td>
-                <td>In Progress</td>
-              </tr>
-
-              <tr>
-                <td>Social Listening</td>
-                <td>65%</td>
-                <td>Running</td>
-              </tr>
-
-              <tr>
-                <td>AI Strategy Engine</td>
-                <td>59%</td>
-                <td>Learning</td>
-              </tr>
-
-            </tbody>
-
-          </table>
-
-        </div>
-
-      </div>
-
     </div>
   );
 }
