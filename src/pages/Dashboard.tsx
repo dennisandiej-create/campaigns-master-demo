@@ -65,7 +65,11 @@ export default function Dashboard({
 
         {page === "GIS Map" && <GISMap />}
 
-        {page === "Analytics" && <Analytics />}
+        {page === "Analytics" && (
+  <Analytics
+    onNavigate={setPage}
+  />
+)}
 
         {page === "AI Centre" && <AI />}
 

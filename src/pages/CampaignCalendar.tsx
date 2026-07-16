@@ -15,33 +15,44 @@ type Event = {
 export default function CampaignCalendar() {
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
+
   const [search, setSearch] = useState("");
   const [countyFilter, setCountyFilter] = useState("All");
   const [statusFilter, setStatusFilter] = useState("All");
-  const [showModal, setShowModal] = useState(false);
-const [title, setTitle] = useState("");
-const [county, setCounty] = useState("");
-const [location, setLocation] = useState("");
-const [eventDate, setEventDate] = useState("");
-const [eventTime, setEventTime] = useState("");
-const [status, setStatus] = useState("Planned");
-const [description, setDescription] = useState("");
-  useEffect(() => {
-    const fetchEvents = async () => {
-      const { data, error } = await supabase
-  .from("campaign_events")
-  .select("*")
-  .order("event_date", { ascending: true });
-      if (error) {
-        console.error("Error fetching events:", error);
-      } else {
-        setEvents(data || []);
-      }
-      setLoading(false);
-    };
 
-    fetchEvents();
+  const [showModal, setShowModal] = useState(false);
+
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
+
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [county, setCounty] = useState("");
+  const [location, setLocation] = useState("");
+  const [eventDate, setEventDate] = useState("");
+  const [eventTime, setEventTime] = useState("");
+  const [status, setStatus] = useState("Planned");
+
+  useEffect(() => {
+    loadEvents();
   }, []);
+
+  async function loadEvents() {
+    setLoading(true);
+
+    const { data, error } = await supabase
+      .from("campaign_events")
+      .select("*")
+      .order("event_date", { ascending: true });
+
+    if (error) {
+      console.error(error);
+    } else {
+      setEvents(data ?? []);
+    }
+
+    setLoading(false);
+  }
 
   const counties = [
     "All",
@@ -71,53 +82,101 @@ const [description, setDescription] = useState("");
     );
   });
 
-  async function saveEvent() {
-  if (!title || !county || !location || !eventDate) {
-    alert("Please fill all required fields.");
-    return;
+  function editEvent(event: Event) {
+    setEditingId(event.id);
+    setIsEditing(true);
+
+    setTitle(event.title);
+    setDescription(event.description ?? "");
+    setCounty(event.county);
+    setLocation(event.location);
+    setEventDate(event.event_date);
+    setEventTime(event.event_time);
+    setStatus(event.status);
+
+    setShowModal(true);
   }
 
-  const { error } = await supabase
-    .from("campaign_events")
-    .insert([
-      {
-        title,
-        description,
-        county,
-        location,
-        event_date: eventDate,
-        event_time: eventTime,
-        status,
-      },
-    ]);
+  async function deleteEvent(id: number) {
+    const ok = confirm(
+      "Delete this event?\n\nThis cannot be undone."
+    );
 
-  if (error) {
-  console.error("Supabase Error:", error);
+    if (!ok) return;
 
-  alert(
-    "Error:\n\n" +
-    JSON.stringify(error, null, 2)
-  );
+    const { error } = await supabase
+      .from("campaign_events")
+      .delete()
+      .eq("id", id);
 
-  return;
-}
-alert("Event saved successfully!");
+    if (error) {
+      alert(error.message);
+      return;
+    }
 
-  await loadEvents();
+    await loadEvents();
+  }
 
-setShowModal(false);
+  async function saveEvent() {
+    if (!title || !county || !location || !eventDate) {
+      alert("Please fill all required fields.");
+      return;
+    }
 
-setTitle("");
-setDescription("");
-setCounty("");
-setLocation("");
-setEventDate("");
-setEventTime("");
-setStatus("Planned");
-}
+    let error;
+
+    if (isEditing) {
+      ({ error } = await supabase
+        .from("campaign_events")
+        .update({
+          title,
+          description,
+          county,
+          location,
+          event_date: eventDate,
+          event_time: eventTime,
+          status,
+        })
+        .eq("id", editingId));
+    } else {
+      ({ error } = await supabase
+        .from("campaign_events")
+        .insert([
+          {
+            title,
+            description,
+            county,
+            location,
+            event_date: eventDate,
+            event_time: eventTime,
+            status,
+          },
+        ]));
+    }
+
+    if (error) {
+      alert(error.message);
+      return;
+    }
+
+    await loadEvents();
+
+    setEditingId(null);
+    setIsEditing(false);
+
+    setTitle("");
+    setDescription("");
+    setCounty("");
+    setLocation("");
+    setEventDate("");
+    setEventTime("");
+    setStatus("Planned");
+
+    setShowModal(false);
+  }
 
   return (
-    <div>
+        <div>
 
       {/* Header */}
 
@@ -126,98 +185,86 @@ setStatus("Planned");
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          gap: 20,
-          marginBottom: 25,
           flexWrap: "wrap",
+          gap: 20,
+          marginBottom: 30,
         }}
       >
+        <h1>📅 Campaign Calendar</h1>
+
         <div
-  style={{
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    flexWrap: "wrap",
-    gap: 20,
-    marginBottom: 30,
-  }}
->
-
-  <h1>📅 Campaign Calendar</h1>
-
-  <div
-    style={{
-      display: "flex",
-      gap: 10,
-      flexWrap: "wrap",
-    }}
-  >
-
-    <input
-      type="text"
-      placeholder="Search events..."
-      value={search}
-      onChange={(e) => setSearch(e.target.value)}
-      style={{
-        padding: 10,
-        width: 220,
-      }}
-    />
-
-    <select
-      value={countyFilter}
-      onChange={(e) =>
-        setCountyFilter(e.target.value)
-      }
-      style={{
-        padding: 10,
-      }}
-    >
-      {counties.map((county) => (
-        <option
-          key={county}
-          value={county}
+          style={{
+            display: "flex",
+            gap: 10,
+            flexWrap: "wrap",
+          }}
         >
-          {county}
-        </option>
-      ))}
-    </select>
+          <input
+            type="text"
+            placeholder="Search events..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            style={{
+              padding: 10,
+              width: 220,
+            }}
+          />
 
-    <select
-      value={statusFilter}
-      onChange={(e) =>
-        setStatusFilter(e.target.value)
-      }
-      style={{
-        padding: 10,
-      }}
-    >
-      <option>All</option>
-      <option>Scheduled</option>
-      <option>Active</option>
-      <option>Planned</option>
-      <option>Completed</option>
-      <option>Cancelled</option>
-    </select>
+          <select
+            value={countyFilter}
+            onChange={(e) => setCountyFilter(e.target.value)}
+            style={{ padding: 10 }}
+          >
+            {counties.map((county) => (
+              <option key={county} value={county}>
+                {county}
+              </option>
+            ))}
+          </select>
 
-    <button
-  onClick={() => setShowModal(true)}
-  style={{
-    background: "#2563eb",
-    color: "white",
-    border: "none",
-    padding: "10px 18px",
-    borderRadius: 6,
-    cursor: "pointer",
-  }}
->
-  + New Event
-</button>
-  </div>
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            style={{ padding: 10 }}
+          >
+            <option>All</option>
+            <option>Planned</option>
+            <option>Scheduled</option>
+            <option>Active</option>
+            <option>Completed</option>
+            <option>Cancelled</option>
+          </select>
 
+          <button
+            onClick={() => {
+              setEditingId(null);
+              setIsEditing(false);
+
+              setTitle("");
+              setDescription("");
+              setCounty("");
+              setLocation("");
+              setEventDate("");
+              setEventTime("");
+              setStatus("Planned");
+
+              setShowModal(true);
+            }}
+            style={{
+              background: "#2563eb",
+              color: "white",
+              border: "none",
+              padding: "10px 18px",
+              borderRadius: 6,
+              cursor: "pointer",
+            }}
+          >
+            + New Event
+          </button>
         </div>
       </div>
 
-      {/* Events Table */}
+      {/* Events */}
 
       <div className="panel">
 
@@ -231,7 +278,9 @@ setStatus("Planned");
             borderCollapse: "collapse",
           }}
         >
+
           <thead>
+
             <tr>
               <th align="left">Date</th>
               <th align="left">Time</th>
@@ -241,183 +290,248 @@ setStatus("Planned");
               <th align="left">Status</th>
               <th align="center">Actions</th>
             </tr>
+
           </thead>
 
           <tbody>
-  {loading ? (
-    <tr>
-      <td colSpan={6}>Loading events...</td>
-    </tr>
-  ) : filteredEvents.length === 0 ? (
-    <tr>
-      <td colSpan={6}>No events found.</td>
-    </tr>
-  ) : (
-    filteredEvents.map((event) => (
-      <tr key={event.id}>
-        <td>{event.event_date}</td>
-        <td>{event.event_time}</td>
-        <td>{event.title}</td>
-        <td>{event.county}</td>
-        <td>{event.location}</td>
-        <td>{event.status}</td>
 
-<td align="center">
-  <button
-    style={{
-      marginRight: 8,
-      background: "#f59e0b",
-      color: "white",
-      border: "none",
-      padding: "6px 12px",
-      borderRadius: 6,
-      cursor: "pointer",
-    }}
-  >
-    ✏️ Edit
-  </button>
+            {loading ? (
 
-  <button
-    style={{
-      background: "#dc2626",
-      color: "white",
-      border: "none",
-      padding: "6px 12px",
-      borderRadius: 6,
-      cursor: "pointer",
-    }}
-  >
-    🗑 Delete
-  </button>
-</td>
-      </tr>
-    ))
-  )}
-</tbody>
+              <tr>
+                <td colSpan={7}>
+                  Loading events...
+                </td>
+              </tr>
+
+            ) : filteredEvents.length === 0 ? (
+
+              <tr>
+                <td colSpan={7}>
+                  No events found.
+                </td>
+              </tr>
+
+            ) : (
+
+              filteredEvents.map((event) => (
+
+                <tr key={event.id}>
+
+                  <td>{event.event_date}</td>
+
+                  <td>{event.event_time}</td>
+
+                  <td>{event.title}</td>
+
+                  <td>{event.county}</td>
+
+                  <td>{event.location}</td>
+
+                  <td>{event.status}</td>
+
+                  <td align="center">
+
+                    <button
+                      onClick={() => editEvent(event)}
+                      style={{
+                        background: "#f59e0b",
+                        color: "white",
+                        border: "none",
+                        padding: "6px 12px",
+                        borderRadius: 6,
+                        cursor: "pointer",
+                        marginRight: 8,
+                      }}
+                    >
+                      ✏️ Edit
+                    </button>
+
+                    <button
+                      onClick={() => deleteEvent(event.id)}
+                      style={{
+                        background: "#dc2626",
+                        color: "white",
+                        border: "none",
+                        padding: "6px 12px",
+                        borderRadius: 6,
+                        cursor: "pointer",
+                      }}
+                    >
+                      🗑 Delete
+                    </button>
+
+                  </td>
+
+                </tr>
+
+              ))
+
+            )}
+
+          </tbody>
+
         </table>
 
       </div>
-{showModal && (
-  <div
-    style={{
-      position: "fixed",
-      inset: 0,
-      background: "rgba(0,0,0,.5)",
-      display: "flex",
-      justifyContent: "center",
-      alignItems: "center",
-      zIndex: 1000,
-    }}
-  >
-    <div
-      style={{
-        background: "#fff",
-        width: 600,
-        maxWidth: "95%",
-        borderRadius: 10,
-        padding: 25,
-        color: "#111",
-      }}
-    >
-      <h2>Add Campaign Event</h2>
-
-      <input
-        placeholder="Event Title"
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-        style={{ width: "100%", padding: 10, marginBottom: 12 }}
-      />
-
-      <textarea
-        placeholder="Description"
-        value={description}
-        onChange={(e) => setDescription(e.target.value)}
-        style={{
-          width: "100%",
-          height: 90,
-          padding: 10,
-          marginBottom: 12,
-        }}
-      />
-
-      <input
-        placeholder="County"
-        value={county}
-        onChange={(e) => setCounty(e.target.value)}
-        style={{ width: "100%", padding: 10, marginBottom: 12 }}
-      />
-
-      <input
-        placeholder="Location"
-        value={location}
-        onChange={(e) => setLocation(e.target.value)}
-        style={{ width: "100%", padding: 10, marginBottom: 12 }}
-      />
-
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "1fr 1fr",
-          gap: 12,
-        }}
-      >
-        <input
-          type="date"
-          value={eventDate}
-          onChange={(e) => setEventDate(e.target.value)}
-        />
-
-        <input
-          type="time"
-          value={eventTime}
-          onChange={(e) => setEventTime(e.target.value)}
-        />
-      </div>
-
-      <select
-        value={status}
-        onChange={(e) => setStatus(e.target.value)}
-        style={{
-          width: "100%",
-          marginTop: 12,
-          padding: 10,
-        }}
-      >
-        <option>Planned</option>
-        <option>Scheduled</option>
-        <option>Active</option>
-        <option>Completed</option>
-        <option>Cancelled</option>
-      </select>
-
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "flex-end",
-          gap: 10,
-          marginTop: 20,
-        }}
-      >
-        <button onClick={() => setShowModal(false)}>
-          Cancel
-        </button>
-
-        <button
-          onClick={saveEvent}
+            {showModal && (
+        <div
           style={{
-            background: "#2563eb",
-            color: "#fff",
-            border: "none",
-            padding: "10px 18px",
-            borderRadius: 6,
+            position: "fixed",
+            inset: 0,
+            background: "rgba(0,0,0,.5)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 1000,
           }}
         >
-          Save Event
-        </button>
-      </div>
-    </div>
-  </div>
-)}
+          <div
+            style={{
+              background: "#fff",
+              width: 600,
+              maxWidth: "95%",
+              borderRadius: 10,
+              padding: 25,
+              color: "#111",
+            }}
+          >
+            <h2>
+              {isEditing
+                ? "Edit Campaign Event"
+                : "Add Campaign Event"}
+            </h2>
+
+            <input
+              placeholder="Event Title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              style={{
+                width: "100%",
+                padding: 10,
+                marginBottom: 12,
+              }}
+            />
+
+            <textarea
+              placeholder="Description"
+              value={description}
+              onChange={(e) =>
+                setDescription(e.target.value)
+              }
+              style={{
+                width: "100%",
+                height: 90,
+                padding: 10,
+                marginBottom: 12,
+              }}
+            />
+
+            <input
+              placeholder="County"
+              value={county}
+              onChange={(e) =>
+                setCounty(e.target.value)
+              }
+              style={{
+                width: "100%",
+                padding: 10,
+                marginBottom: 12,
+              }}
+            />
+
+            <input
+              placeholder="Location"
+              value={location}
+              onChange={(e) =>
+                setLocation(e.target.value)
+              }
+              style={{
+                width: "100%",
+                padding: 10,
+                marginBottom: 12,
+              }}
+            />
+
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr",
+                gap: 12,
+              }}
+            >
+              <input
+                type="date"
+                value={eventDate}
+                onChange={(e) =>
+                  setEventDate(e.target.value)
+                }
+              />
+
+              <input
+                type="time"
+                value={eventTime}
+                onChange={(e) =>
+                  setEventTime(e.target.value)
+                }
+              />
+            </div>
+
+            <select
+              value={status}
+              onChange={(e) =>
+                setStatus(e.target.value)
+              }
+              style={{
+                width: "100%",
+                marginTop: 12,
+                padding: 10,
+              }}
+            >
+              <option>Planned</option>
+              <option>Scheduled</option>
+              <option>Active</option>
+              <option>Completed</option>
+              <option>Cancelled</option>
+            </select>
+
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "flex-end",
+                gap: 10,
+                marginTop: 20,
+              }}
+            >
+              <button
+                onClick={() => {
+                  setShowModal(false);
+                  setEditingId(null);
+                  setIsEditing(false);
+                }}
+              >
+                Cancel
+              </button>
+
+              <button
+                onClick={saveEvent}
+                style={{
+                  background: "#2563eb",
+                  color: "#fff",
+                  border: "none",
+                  padding: "10px 18px",
+                  borderRadius: 6,
+                  cursor: "pointer",
+                }}
+              >
+                {isEditing
+                  ? "Update Event"
+                  : "Save Event"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
