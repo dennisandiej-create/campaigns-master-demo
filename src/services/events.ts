@@ -1,4 +1,4 @@
-import { CampaignEvent } from "../types/event";
+import type { CampaignEvent } from "../types/event";
 
 export const sampleEvents: CampaignEvent[] = [
   {

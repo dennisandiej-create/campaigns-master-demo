@@ -9,20 +9,19 @@ const menu = [
   { label: "Contacts", icon: "👥" },
   { label: "Voters", icon: "🗳️" },
   { label: "Volunteer Centre", icon: "🤝" },
+  { label: "Constituency Manager", icon: "🏛️" },
   { label: "Campaign Calendar", icon: "📅" },
   { label: "Broadcast Centre", icon: "📨" },
   { label: "GIS Map", icon: "🗺️" },
   { label: "Analytics", icon: "📈" },
   { label: "AI Centre", icon: "🤖" },
   { label: "Reports", icon: "📊" },
+
+  // Administration
+  { label: "Location Manager", icon: "📍" },
   { label: "Settings", icon: "⚙️" },
 ];
-
-export default function Sidebar({
-  office,
-  selected,
-  onSelect,
-}: Props) {
+export default function Sidebar({ office, selected, onSelect }: Props) {
   return (
     <aside className="sidebar">
       <div className="logo">

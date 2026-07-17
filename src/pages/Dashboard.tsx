@@ -17,33 +17,23 @@ import CampaignCalendar from "./CampaignCalendar";
 import BroadcastCentre from "./BroadcastCentre";
 import Reports from "./Reports";
 import Settings from "./Settings";
+import LocationManager from "./LocationManager";
+import ConstituencyManager from "./ConstituencyManager";
 
 type Props = {
   office: string;
   onBack: () => void;
 };
 
-export default function Dashboard({
-  office,
-  onBack,
-}: Props) {
+export default function Dashboard({ office, onBack }: Props) {
   const [page, setPage] = useState("Dashboard");
 
   return (
     <div className="dashboard">
-
-      <Sidebar
-        office={office}
-        selected={page}
-        onSelect={setPage}
-      />
+      <Sidebar office={office} selected={page} onSelect={setPage} />
 
       <div className="content">
-
-        <Header
-          office={office}
-          onBack={onBack}
-        />
+        <Header office={office} onBack={onBack} />
 
         {page === "Dashboard" && <CommandCentre />}
 
@@ -51,34 +41,24 @@ export default function Dashboard({
 
         {page === "Voters" && <Voters />}
 
-        {page === "Volunteer Centre" && (
-          <VolunteerCentre />
-        )}
+        {page === "Volunteer Centre" && <VolunteerCentre />}
+        {page === "Constituency Manager" && <ConstituencyManager />}
 
-        {page === "Campaign Calendar" && (
-          <CampaignCalendar />
-        )}
+        {page === "Campaign Calendar" && <CampaignCalendar />}
 
-        {page === "Broadcast Centre" && (
-          <BroadcastCentre />
-        )}
+        {page === "Broadcast Centre" && <BroadcastCentre />}
 
         {page === "GIS Map" && <GISMap />}
 
-        {page === "Analytics" && (
-  <Analytics
-    onNavigate={setPage}
-  />
-)}
+        {page === "Analytics" && <Analytics onNavigate={setPage} />}
 
         {page === "AI Centre" && <AI />}
 
         {page === "Reports" && <Reports />}
+        {page === "Location Manager" && <LocationManager />}
 
         {page === "Settings" && <Settings />}
-
       </div>
-
     </div>
   );
 }
