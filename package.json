@@ -2,20 +2,25 @@
   "name": "campaigns-master-demo",
   "private": true,
   "version": "0.0.0",
+  "homepage": "https://dennisandiej-create.github.io/campaigns-master-demo",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d dist"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.110.5",
     "file-saver": "^2.0.5",
+    "leaflet": "^1.9.4",
     "lucide-react": "^1.24.0",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
     "react-icons": "^5.7.0",
+    "react-leaflet": "^5.0.0",
     "react-router-dom": "^7.18.1",
     "recharts": "^3.9.2",
     "xlsx": "^0.18.5"
@@ -24,6 +29,7 @@
     "@eslint/js": "^10.0.1",
     "@tailwindcss/vite": "^4.3.2",
     "@types/file-saver": "^2.0.7",
+    "@types/leaflet": "^1.9.21",
     "@types/node": "^24.13.2",
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
@@ -31,6 +37,7 @@
     "eslint": "^10.6.0",
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.3",
+    "gh-pages": "^6.3.0",
     "globals": "^17.7.0",
     "tailwindcss": "^4.3.2",
     "typescript": "~6.0.2",

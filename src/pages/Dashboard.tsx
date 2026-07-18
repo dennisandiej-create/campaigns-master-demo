@@ -19,7 +19,12 @@ import Reports from "./Reports";
 import Settings from "./Settings";
 import LocationManager from "./LocationManager";
 import ConstituencyManager from "./ConstituencyManager";
-
+import WardManager from "./WardManager";
+import PollingStationManager from "./PollingStationManager";
+import VolunteerManager from "./VolunteerManager";
+import PollingAgentManager from "./PollingAgentManager";
+import TurnoutDashboard from "./TurnoutDashboard";
+import IncidentDashboard from "./IncidentDashboard";
 type Props = {
   office: string;
   onBack: () => void;
@@ -43,7 +48,8 @@ export default function Dashboard({ office, onBack }: Props) {
 
         {page === "Volunteer Centre" && <VolunteerCentre />}
         {page === "Constituency Manager" && <ConstituencyManager />}
-
+        {page === "Ward Manager" && <WardManager />}
+        {page === "Polling Station Manager" && <PollingStationManager />}
         {page === "Campaign Calendar" && <CampaignCalendar />}
 
         {page === "Broadcast Centre" && <BroadcastCentre />}
@@ -51,12 +57,14 @@ export default function Dashboard({ office, onBack }: Props) {
         {page === "GIS Map" && <GISMap />}
 
         {page === "Analytics" && <Analytics onNavigate={setPage} />}
-
+        {page === "Polling Agents" && <PollingAgentManager />}
         {page === "AI Centre" && <AI />}
-
+        {page === "Volunteer Manager" && <VolunteerManager />}
+        {page === "Contacts CRM" && <Contacts />}
         {page === "Reports" && <Reports />}
         {page === "Location Manager" && <LocationManager />}
-
+        {page === "Turnout Dashboard" && <TurnoutDashboard />}
+        {page === "Incident Dashboard" && <IncidentDashboard />}
         {page === "Settings" && <Settings />}
       </div>
     </div>

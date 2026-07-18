@@ -1,39 +1,41 @@
 import { useEffect, useState } from "react";
-import { getPollingStations } from "../services/pollingStationService";
-import type { Volunteer } from "../types/volunteer";
+
+import type { PollingAgent } from "../types/pollingAgent";
 import type { PollingStation } from "../types/pollingStation";
 
+import { getPollingStations } from "../services/pollingStationService";
+
 type Props = {
-  volunteer?: Volunteer | null;
+  agent?: PollingAgent | null;
 
   onSave: (
-    volunteer: Omit<Volunteer, "id" | "created_at" | "updated_at">,
+    agent: Omit<PollingAgent, "id" | "created_at" | "updated_at">,
   ) => Promise<void>;
 
   onCancel: () => void;
 };
 
-export default function VolunteerForm({ volunteer, onSave, onCancel }: Props) {
+export default function PollingAgentForm({ agent, onSave, onCancel }: Props) {
   const [saving, setSaving] = useState(false);
 
   const [stations, setStations] = useState<PollingStation[]>([]);
 
   const [form, setForm] = useState({
-    polling_station_id: 1,
+    polling_station_id: 0,
 
     full_name: "",
 
     phone: "",
 
-    email: "",
+    national_id: "",
 
-    id_number: "",
+    role: "Agent",
 
-    role: "Volunteer",
+    status: "Assigned",
 
-    status: "Active",
+    check_in_time: "",
 
-    date_joined: new Date().toISOString().substring(0, 10),
+    check_out_time: "",
 
     notes: "",
   });
@@ -43,23 +45,32 @@ export default function VolunteerForm({ volunteer, onSave, onCancel }: Props) {
   }, []);
 
   useEffect(() => {
-    if (volunteer) {
-      setForm({
-        polling_station_id: volunteer.polling_station_id,
-        full_name: volunteer.full_name,
-        phone: volunteer.phone,
-        email: volunteer.email ?? "",
-        id_number: volunteer.id_number ?? "",
-        role: volunteer.role,
-        status: volunteer.status,
-        date_joined: volunteer.date_joined,
-        notes: volunteer.notes ?? "",
-      });
-    }
-  }, [volunteer]);
+    if (!agent) return;
+
+    setForm({
+      polling_station_id: agent.polling_station_id,
+
+      full_name: agent.full_name,
+
+      phone: agent.phone,
+
+      national_id: agent.national_id ?? "",
+
+      role: agent.role,
+
+      status: agent.status,
+
+      check_in_time: agent.check_in_time ?? "",
+
+      check_out_time: agent.check_out_time ?? "",
+
+      notes: agent.notes ?? "",
+    });
+  }, [agent]);
 
   async function loadStations() {
     const data = await getPollingStations();
+
     setStations(data);
   }
 
@@ -74,14 +85,36 @@ export default function VolunteerForm({ volunteer, onSave, onCancel }: Props) {
     e.preventDefault();
 
     if (!form.full_name.trim()) {
-      alert("Volunteer name is required.");
+      alert("Agent name is required.");
+      return;
+    }
+
+    if (!form.phone.trim()) {
+      alert("Phone number is required.");
+      return;
+    }
+
+    if (!form.polling_station_id) {
+      alert("Select a polling station.");
       return;
     }
 
     try {
       setSaving(true);
-      await onSave(form);
+
+      await onSave({
+        ...form,
+        national_id: form.national_id || null,
+        notes: form.notes || null,
+        check_in_time: form.check_in_time || null,
+        check_out_time: form.check_out_time || null,
+      });
+
       onCancel();
+    } catch (error) {
+      console.error(error);
+
+      alert("Unable to save polling agent.");
     } finally {
       setSaving(false);
     }
@@ -90,7 +123,7 @@ export default function VolunteerForm({ volunteer, onSave, onCancel }: Props) {
   return (
     <div style={overlayStyle}>
       <div style={modalStyle}>
-        <h2>{volunteer ? "✏️ Edit Volunteer" : "👥 Add Volunteer"}</h2>
+        <h2>{agent ? "✏️ Edit Polling Agent" : "👤 Add Polling Agent"}</h2>
 
         <form onSubmit={handleSubmit}>
           <div style={rowStyle}>
@@ -104,6 +137,8 @@ export default function VolunteerForm({ volunteer, onSave, onCancel }: Props) {
                   update("polling_station_id", Number(e.target.value))
                 }
               >
+                <option value={0}>Select Polling Station</option>
+
                 {stations.map((station) => (
                   <option key={station.id} value={station.id}>
                     {station.name}
@@ -125,7 +160,7 @@ export default function VolunteerForm({ volunteer, onSave, onCancel }: Props) {
 
           <div style={rowStyle}>
             <div style={fieldStyle}>
-              <label>Phone</label>
+              <label>Phone Number</label>
 
               <input
                 style={inputStyle}
@@ -135,27 +170,17 @@ export default function VolunteerForm({ volunteer, onSave, onCancel }: Props) {
             </div>
 
             <div style={fieldStyle}>
-              <label>Email</label>
+              <label>National ID</label>
 
               <input
                 style={inputStyle}
-                value={form.email}
-                onChange={(e) => update("email", e.target.value)}
+                value={form.national_id}
+                onChange={(e) => update("national_id", e.target.value)}
               />
             </div>
           </div>
 
           <div style={rowStyle}>
-            <div style={fieldStyle}>
-              <label>ID Number</label>
-
-              <input
-                style={inputStyle}
-                value={form.id_number}
-                onChange={(e) => update("id_number", e.target.value)}
-              />
-            </div>
-
             <div style={fieldStyle}>
               <label>Role</label>
 
@@ -164,16 +189,12 @@ export default function VolunteerForm({ volunteer, onSave, onCancel }: Props) {
                 value={form.role}
                 onChange={(e) => update("role", e.target.value)}
               >
-                <option>Volunteer</option>
-                <option>Coordinator</option>
-                <option>Mobilizer</option>
                 <option>Agent</option>
-                <option>Observer</option>
+                <option>Chief Agent</option>
+                <option>Supervisor</option>
               </select>
             </div>
-          </div>
 
-          <div style={rowStyle}>
             <div style={fieldStyle}>
               <label>Status</label>
 
@@ -182,19 +203,34 @@ export default function VolunteerForm({ volunteer, onSave, onCancel }: Props) {
                 value={form.status}
                 onChange={(e) => update("status", e.target.value)}
               >
-                <option>Active</option>
-                <option>Inactive</option>
+                <option>Assigned</option>
+                <option>Checked In</option>
+                <option>Checked Out</option>
+                <option>Absent</option>
               </select>
+            </div>
+          </div>
+
+          <div style={rowStyle}>
+            <div style={fieldStyle}>
+              <label>Check In Time</label>
+
+              <input
+                type="datetime-local"
+                style={inputStyle}
+                value={form.check_in_time}
+                onChange={(e) => update("check_in_time", e.target.value)}
+              />
             </div>
 
             <div style={fieldStyle}>
-              <label>Date Joined</label>
+              <label>Check Out Time</label>
 
               <input
-                type="date"
+                type="datetime-local"
                 style={inputStyle}
-                value={form.date_joined}
-                onChange={(e) => update("date_joined", e.target.value)}
+                value={form.check_out_time}
+                onChange={(e) => update("check_out_time", e.target.value)}
               />
             </div>
           </div>
@@ -226,11 +262,7 @@ export default function VolunteerForm({ volunteer, onSave, onCancel }: Props) {
             </button>
 
             <button type="submit" disabled={saving}>
-              {saving
-                ? "Saving..."
-                : volunteer
-                  ? "Update Volunteer"
-                  : "Save Volunteer"}
+              {saving ? "Saving..." : agent ? "Update Agent" : "Save Agent"}
             </button>
           </div>
         </form>
@@ -246,22 +278,25 @@ const overlayStyle: React.CSSProperties = {
   display: "flex",
   justifyContent: "center",
   alignItems: "center",
-  zIndex: 999,
+  zIndex: 1000,
 };
 
 const modalStyle: React.CSSProperties = {
-  width: 760,
+  width: 800,
   maxWidth: "95%",
-  background: "#fff",
+  maxHeight: "90vh",
+  overflowY: "auto",
+  background: "#ffffff",
   borderRadius: 16,
-  padding: 28,
+  padding: 30,
+  boxShadow: "0 20px 50px rgba(0,0,0,.35)",
 };
 
 const rowStyle: React.CSSProperties = {
   display: "grid",
   gridTemplateColumns: "1fr 1fr",
   gap: 20,
-  marginTop: 18,
+  marginTop: 20,
 };
 
 const fieldStyle: React.CSSProperties = {
@@ -271,8 +306,10 @@ const fieldStyle: React.CSSProperties = {
 
 const inputStyle: React.CSSProperties = {
   marginTop: 6,
-  padding: 10,
+  padding: "10px 12px",
   border: "1px solid #d1d5db",
   borderRadius: 8,
   fontSize: 15,
+  width: "100%",
+  boxSizing: "border-box",
 };

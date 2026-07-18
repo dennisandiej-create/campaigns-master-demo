@@ -1,79 +1,76 @@
 import { useEffect, useMemo, useState } from "react";
-
 import {
-  getContacts,
-  addContact,
-  updateContact,
-  deleteContact,
-} from "../services/contactService";
+  getVolunteers,
+  addVolunteer,
+  updateVolunteer,
+  deleteVolunteer,
+} from "../services/volunteerService";
 
-import type { Contact } from "../types/contact";
+import type { Volunteer } from "../types/volunteer";
+import VolunteerForm from "../components/VolunteerForm";
 
-import ContactForm from "../components/ContactForm";
-
-export default function Contacts() {
-  const [contacts, setContacts] = useState<Contact[]>([]);
+export default function VolunteerManager() {
+  const [volunteers, setVolunteers] = useState<Volunteer[]>([]);
   const [loading, setLoading] = useState(true);
 
   const [search, setSearch] = useState("");
 
   const [showForm, setShowForm] = useState(false);
 
-  const [editingContact, setEditingContact] = useState<Contact | null>(null);
+  const [editingVolunteer, setEditingVolunteer] = useState<Volunteer | null>(
+    null,
+  );
 
   useEffect(() => {
-    loadContacts();
+    loadVolunteers();
   }, []);
 
-  async function loadContacts() {
+  async function loadVolunteers() {
     try {
       setLoading(true);
-
-      const data = await getContacts();
-
-      setContacts(data);
+      const data = await getVolunteers();
+      setVolunteers(data);
     } finally {
       setLoading(false);
     }
   }
 
   async function handleSave(
-    contact: Omit<Contact, "id" | "created_at" | "updated_at">,
+    volunteer: Omit<Volunteer, "id" | "created_at" | "updated_at">,
   ) {
-    if (editingContact) {
-      await updateContact(editingContact.id, contact);
+    if (editingVolunteer) {
+      await updateVolunteer(editingVolunteer.id, volunteer);
     } else {
-      await addContact(contact);
+      await addVolunteer(volunteer);
     }
 
-    setEditingContact(null);
-
+    setEditingVolunteer(null);
     setShowForm(false);
 
-    await loadContacts();
+    await loadVolunteers();
   }
 
   async function handleDelete(id: number) {
-    if (!window.confirm("Delete this contact?")) return;
+    if (!window.confirm("Delete this volunteer?")) return;
 
-    await deleteContact(id);
+    await deleteVolunteer(id);
 
-    await loadContacts();
+    await loadVolunteers();
   }
 
   const filtered = useMemo(() => {
-    return contacts.filter((c) => {
+    return volunteers.filter((v) => {
       const q = search.toLowerCase();
 
       return (
-        c.full_name.toLowerCase().includes(q) ||
-        c.phone.toLowerCase().includes(q) ||
-        (c.category ?? "").toLowerCase().includes(q)
+        v.full_name.toLowerCase().includes(q) ||
+        v.phone.toLowerCase().includes(q) ||
+        (v.role ?? "").toLowerCase().includes(q)
       );
     });
-  }, [contacts, search]);
+  }, [volunteers, search]);
 
-  const supporters = contacts.filter((c) => c.category === "Supporter").length;
+  const activeCount = volunteers.filter((v) => v.status === "Active").length;
 
   return (
     <div style={{ padding: 24 }}>
@@ -85,15 +82,15 @@ export default function Contacts() {
           marginBottom: 20,
         }}
       >
-        <h1>📇 Contacts CRM</h1>
+        <h1>👥 Volunteer Manager</h1>
 
         <button
           onClick={() => {
-            setEditingContact(null);
+            setEditingVolunteer(null);
             setShowForm(true);
           }}
         >
-          + Add Contact
+          + Add Volunteer
         </button>
       </div>
 
@@ -105,18 +102,18 @@ export default function Contacts() {
         }}
       >
         <div>
-          <strong>Total Contacts</strong>
-          <div>{contacts.length}</div>
+          <strong>Total Volunteers</strong>
+          <div>{volunteers.length}</div>
         </div>
 
         <div>
-          <strong>Supporters</strong>
-          <div>{supporters}</div>
+          <strong>Active Volunteers</strong>
+          <div>{activeCount}</div>
         </div>
       </div>
 
       <input
-        placeholder="Search contact..."
+        placeholder="Search volunteer..."
         value={search}
         onChange={(e) => setSearch(e.target.value)}
         style={{
@@ -127,18 +124,18 @@ export default function Contacts() {
       />
 
       {showForm && (
-        <ContactForm
-          contact={editingContact}
+        <VolunteerForm
+          volunteer={editingVolunteer}
           onSave={handleSave}
           onCancel={() => {
             setShowForm(false);
-            setEditingContact(null);
+            setEditingVolunteer(null);
           }}
         />
       )}
 
       {loading ? (
-        <p>Loading contacts...</p>
+        <p>Loading volunteers...</p>
       ) : (
         <table
           style={{
@@ -158,36 +155,35 @@ export default function Contacts() {
             <tr>
               <th style={thStyle}>Name</th>
               <th style={thStyle}>Phone</th>
-              <th style={thStyle}>Category</th>
-              <th style={thStyle}>Support</th>
-              <th style={thStyle}>Ward</th>
+              <th style={thStyle}>Role</th>
+              <th style={thStyle}>Status</th>
+              <th style={thStyle}>Date Joined</th>
               <th style={thStyle}>Actions</th>
             </tr>
           </thead>
 
           <tbody>
-            {" "}
-            {filtered.map((contact) => (
+            {filtered.map((volunteer) => (
               <tr
-                key={contact.id}
+                key={volunteer.id}
                 style={{
                   borderBottom: "1px solid #e5e7eb",
                 }}
               >
-                <td style={tdStyle}>{contact.full_name}</td>
+                <td style={tdStyle}>{volunteer.full_name}</td>
 
-                <td style={tdStyle}>{contact.phone}</td>
+                <td style={tdStyle}>{volunteer.phone}</td>
 
-                <td style={tdStyle}>{contact.category}</td>
+                <td style={tdStyle}>{volunteer.role}</td>
 
-                <td style={tdStyle}>{contact.support_level}</td>
+                <td style={tdStyle}>{volunteer.status}</td>
 
-                <td style={tdStyle}>{contact.ward_id ?? "-"}</td>
+                <td style={tdStyle}>{volunteer.date_joined}</td>
 
                 <td style={tdStyle}>
                   <button
                     onClick={() => {
-                      setEditingContact(contact);
+                      setEditingVolunteer(volunteer);
                       setShowForm(true);
                     }}
                     style={editButton}
@@ -196,7 +192,7 @@ export default function Contacts() {
                   </button>
 
                   <button
-                    onClick={() => handleDelete(contact.id)}
+                    onClick={() => handleDelete(volunteer.id)}
                     style={deleteButton}
                   >
                     🗑 Delete
@@ -214,7 +210,6 @@ export default function Contacts() {
 const thStyle: React.CSSProperties = {
   padding: 14,
   textAlign: "left",
-  fontWeight: 600,
 };
 
 const tdStyle: React.CSSProperties = {

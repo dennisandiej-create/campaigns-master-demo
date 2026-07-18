@@ -10,12 +10,24 @@ const menu = [
   { label: "Voters", icon: "🗳️" },
   { label: "Volunteer Centre", icon: "🤝" },
   { label: "Constituency Manager", icon: "🏛️" },
+  { label: "Ward Manager", icon: "📍" },
+  { label: "Polling Station Manager", icon: "🗳️" },
   { label: "Campaign Calendar", icon: "📅" },
   { label: "Broadcast Centre", icon: "📨" },
   { label: "GIS Map", icon: "🗺️" },
   { label: "Analytics", icon: "📈" },
   { label: "AI Centre", icon: "🤖" },
   { label: "Reports", icon: "📊" },
+  { label: "Volunteer Manager", icon: "👥" },
+  { label: "Contacts CRM", icon: "📇" },
+  {
+    label: "Polling Agents",
+    icon: "🧑‍💼",
+  },
+  {
+    label: "Turnout Dashboard",
+    icon: "📈",
+  },
 
   // Administration
   { label: "Location Manager", icon: "📍" },
