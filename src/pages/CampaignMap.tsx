@@ -32,7 +32,7 @@ type MapStation = PollingStation & {
 export default function CampaignMap() {
   const [loading, setLoading] = useState(true);
 
-  const [wards, setWards] = useState<Ward[]>([]);
+  const [, setWards] = useState<Ward[]>([]);
 
   const [stations, setStations] = useState<MapStation[]>([]);
 
